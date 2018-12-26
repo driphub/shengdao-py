@@ -60,7 +60,9 @@ class ShengdaoClient:
 		self.password = password
 		if name == None:
 			self.name = userid
-		self.auth = None
+		else:
+			self.name = name
+		self.auth = self.get_auth()
 		self.shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
 	def get_auth(self):	
@@ -119,8 +121,13 @@ class ShengdaoClient:
 
 	def search_activity(self): 
 												  
-		result = session.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
-		print(result.text)
+		result = requests.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
+		if len(json.loads(result.text)) == 0:
+			print('现在无活动')
+		else:
+			print("现有活动:")
+			for shoe in json.loads(result.text):
+				print(result.text)
 
 	def search_register(self):
 
@@ -128,5 +135,3 @@ class ShengdaoClient:
 		print(self.name+"登记数量:"+str(len(json.loads(result.text))))		
 		for shoe in json.loads(result.text):
 			print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+self.shoe_state[shoe['state']])
-
-Batch_Client('shengdao.txt')
