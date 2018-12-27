@@ -14,7 +14,7 @@ class Batch_Client:
 		self.f = open(file)
 		self.shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 		self.shengdaolist = []
-		self.auths = []
+		self.clients = []
 		self.pre_process()
 
 	
@@ -34,18 +34,26 @@ class Batch_Client:
 		for items in tqdm(self.shengdaolist):
 			try:
 				client = ShengdaoClient(items['userid'],items['password'],items['name'])
-				self.auths.append({'name':items['name'],'auth':client.get_auth()})
+				self.clients.append({'name':items['name'],'client':client})
+				# self.auths.append({'name':items['name'],'auth':client.get_auth()})
 			except KeyboardInterrupt:
 				exit()
 			except:
-				print(items['name']+'获取auth失败，跳过')
+					print(items['name']+'获取auth失败，跳过')
+
+	def register(self):
+		for items in self.clients:
+			 items['client'].register()
+
 
 	def search_register(self):
-		for items in self.auths:
-			result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=items['auth'])
+		for items in self.clients:
+			result = search_register()
+			# result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=items['auth'])
 			print(items['name']+"登记数量:"+str(len(json.loads(result.text))))		
 			for shoe in json.loads(result.text):
 				print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+self.shoe_state[shoe['state']])
+
 
 	def search_lucky(self):
 		for items in self.auths:
@@ -63,6 +71,7 @@ class ShengdaoClient:
 		else:
 			self.name = name
 		self.auth = self.get_auth()
+		self.activities = self.search_activity()
 		self.shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
 	def get_auth(self):	
@@ -120,14 +129,40 @@ class ShengdaoClient:
 		return header
 
 	def search_activity(self): 
-												  
+		activities = []										  
 		result = requests.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
 		if len(json.loads(result.text)) == 0:
-			print('现在无活动')
+			print(self.name+'现在没有可登记商品')
 		else:
-			print("现有活动:")
+			print(self.name+22"现可登记:")
 			for shoe in json.loads(result.text):
-				print(result.text)
+				activities.append({'activityItemId':shoe['activityItemId'],'name':shoe['itemName']})
+				print(shoe)
+				print('='*50)
+		return activities
+
+	def register(self):
+
+		headers = {
+		    'Authorization': self.auth['Authorization'],
+		    'Origin': 'http://wx.yysports.com',
+		    'Accept-Encoding': 'gzip, deflate',
+		    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+		    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
+		    'Content-Type': 'application/json', # 必要
+		    'Accept': '*/*',
+		    'Referer': 'http://wx.yysports.com/limitelottery/product-list.html',
+		    'X-Requested-With': 'XMLHttpRequest',
+		    'Connection': 'keep-alive',
+		}
+
+		for shoe in self.activities:
+			print(self.name)
+			data = [{"activityItemId":shoe['activityItemId'],"activityShopId":"1640"}]
+			data = json.dumps(data)
+			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
+			if response.status_code == 200:
+				print(shoe['name']+'登记成功')
 
 	def search_register(self):
 
@@ -135,3 +170,7 @@ class ShengdaoClient:
 		print(self.name+"登记数量:"+str(len(json.loads(result.text))))		
 		for shoe in json.loads(result.text):
 			print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+self.shoe_state[shoe['state']])
+		return result
+
+bc = Batch_Client('shengdao.txt')
+bc.register()
