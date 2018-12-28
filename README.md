@@ -10,7 +10,7 @@ shengdao-py : 胜道体育非官方API库 with Python3
 
 示例代码:
 ```
-import shengdao.ShengdaoClient
+from shengdao import ShengdaoClient
 
 client = ShengdaoClient('123','123','小明')
 
