@@ -26,12 +26,14 @@ class Batch_Client:
 		self.f = open(file)
 		self.shengdaolist = []
 		self.clients = []
+		self.activities = []
 		self.pre_process()
 
 	def pre_process(self):
 		self.file_process()
 		print('正在获取auths...')
 		thread(self.get_auths())
+		self.activities = self.clients[0]['client'].search_activity()
 
 	def file_process(self):
 		try:
@@ -53,11 +55,29 @@ class Batch_Client:
 				exit()
 			except IndexError:
 				print(items['name']+'密码错误,跳过')
-		
-	def register(self):
-		for items in self.clients:
-			 items['client'].register()
+
+	def search_activity_print(self):
+		self.clients[0]['client'].search_activity_print()
+
+	def register_all(self):
+		print('开始登记')
+		for items in tqdm(self.clients):
+			 items['client'].register_all()
 		print('批量登记完毕')
+
+	def register(self,activityItemId,activityShopId):
+		print('开始登记')
+		for items in tqdm(self.clients):
+			items['client'].register(activityItemId,activityShopId)
+		print('批量登记完毕')
+
+	def print_activity_then_register(self):
+		self.search_activity_print()
+		if len(self.activities) == 0:
+			return
+		itemid = input('请输入登记商品的编号:')
+		shopid = input('请输入门店编号:')
+		self.register(itemid,shopid)
 
 	def search_register(self):
 		for items in self.clients:
@@ -68,7 +88,6 @@ class Batch_Client:
 			for shoe in shoes:
 				print(shoe['itemName']+' '+shoe['shopName']+' '+shoe['state'])
 
-
 	def search_lucky(self):
 		print('中签名单:')
 		for items in self.clients:
@@ -76,3 +95,5 @@ class Batch_Client:
 			for shoe in shoes: 
 				if shoe['state'] == '已中签':
 					print(items['name'] +' '+ shoe['itemName']+' '+shoe['shopName']+' 中签!')
+
+
