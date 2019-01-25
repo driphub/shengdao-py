@@ -142,14 +142,17 @@ class ShengdaoClient:
 		}
 
 		for shoe in self.activities:
-			data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
-			data = json.dumps(data)
-			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
-			if response.status_code == 200:
-				print(self.name + ' ' + shoe['itemName']  + ' ' + '登记成功')
-			else:
-				print(self.name + ' ' + shoe['itemName'] + ' ' + '登记失败')
-			return
+			if activityItemId == shoe['activityItemId']:
+				shoeName = shoe['itemName']
+						  
+		data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
+		data = json.dumps(data)
+		response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
+		if response.status_code == 200:
+			print(self.name + ' ' + shoeName + ' ' + '登记成功')
+		else:
+			print(self.name + ' ' + shoeName + ' ' + '登记失败')
+		return
 		print(self.name+'现在没有可登记商品')
 
 
