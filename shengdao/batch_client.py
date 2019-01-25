@@ -24,6 +24,7 @@ def thread(func):
 class Batch_Client:
 	def __init__(self,file):
 		self.f = open(file)
+		self.path = os.getcwd()
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
@@ -94,6 +95,28 @@ class Batch_Client:
 			shoes = items['client'].shoes
 			for shoe in shoes: 
 				if shoe['state'] == '已中签':
-					print(items['name'] +' '+ shoe['itemName']+' '+shoe['shopName']+' 中签!')
+					print(items['name']+' '+shoe['itemName']+' '+shoe['shopName']+' 中签!')
 
-
+	def make_file(self):
+		text = []
+		print('当前中签鞋:')
+		lucky_shoes = set()
+		for items in self.clients:
+			shoes = items['client'].shoes
+			for shoe in shoes: 
+				if shoe['state'] == '已中签':
+					lucky_shoes.add(shoe['itemName'])
+		for shoe in lucky_shoes:
+			print(shoe)
+		shoeName = input('请输入需要生成鞋子的名称:')
+		for items in self.clients:
+			shoes = items['client'].shoes
+			for shoe in shoes: 
+				if shoe['itemName'] == shoeName:
+					if shoe['state'] == '已中签':
+						text.append(items['name']+' '+items['client'].userid+' ')
+		path = os.path.join(self.path,shoeName+'.txt')
+		with open(path, 'w') as f:
+			f.write('\n'.join(text))
+			f.close()
+		print('文件已成:'+path)

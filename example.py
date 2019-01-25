@@ -15,7 +15,7 @@ bc = Batch_Client(file_name)
 print('批量登录成功！')
 
 while True:
-	cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入0退出:")
+	cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入4生成中签文件,输入0退出:")
 	if cmd == '1':
 		bc.clients[0]['client'].search_activity_print()
 		if len(bc.clients[0]['client'].search_activity()) == 0:
@@ -27,5 +27,7 @@ while True:
 		bc.search_register()
 	elif cmd == '3':
 		bc.search_lucky()
+	elif cmd == '4':
+		bc.make_file()
 	elif cmd == '0':
 		exit()
