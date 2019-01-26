@@ -142,9 +142,9 @@ class ShengdaoClient:
 		}
 
 		for shoe in self.activities:
-			if activityItemId == shoe['activityItemId']:
+			if str(activityItemId)== str(shoe['activityItemId']):
 				shoeName = shoe['itemName']
-						  
+
 		data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
 		data = json.dumps(data)
 		response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
@@ -154,6 +154,7 @@ class ShengdaoClient:
 			print(self.name + ' ' + shoeName + ' ' + '登记失败')
 		return
 		print(self.name+'现在没有可登记商品')
+
 
 
 	def search_register(self):
