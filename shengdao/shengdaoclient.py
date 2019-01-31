@@ -140,19 +140,22 @@ class ShengdaoClient:
 			'X-Requested-With': 'XMLHttpRequest',
 			'Connection': 'keep-alive',
 		}
-
-		for shoe in self.activities:
-			if activityItemId == shoe['activityItemId']:
-				shoeName = shoe['itemName']
-						  
-		data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
-		data = json.dumps(data)
-		response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
-		if response.status_code == 200:
-			print(self.name + ' ' + shoeName + ' ' + '登记成功')
-		else:
-			print(self.name + ' ' + shoeName + ' ' + '登记失败')
-		return
+		try:
+			for shoe in self.activities:
+				if str(activityItemId) == str(shoe['activityItemId']):
+					shoeName = shoe['itemName']
+							  
+			data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
+			data = json.dumps(data)
+			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
+			if response.status_code == 200:
+				print(self.name + ' ' + shoeName + ' ' + '登记成功')
+			else:
+				print(self.name + ' ' + shoeName + ' ' + '登记失败')
+			return
+		except:
+			print(self.name + ' ' + '登记失败')
+			return
 		print(self.name+'现在没有可登记商品')
 
 
