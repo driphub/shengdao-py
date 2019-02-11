@@ -6,39 +6,44 @@ import json
 import urllib
 import time
 import threading
+from . import send_email
 from .shengdaoclient import ShengdaoClient
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
-max_thread = 4
 
-def thread(func):
-    thread_list = []
-    for i in range(0,max_thread):
-        t = threading.Thread(target=func)
-        thread_list.append(t)
-    for i in thread_list:
-        i.start()
-    for i in thread_list:
-        i.join()
+class myThread(threading.Thread):
+	def __init__(self,func,args=[]):
+		threading.Thread.__init__(self)
+		self.func = func
+		self.args = args
+	def run(self):				   
+		if len(self.args) == 0:
+			self.func()
+		else:
+			self.func(self.args[0],self.args[1])
 
 class Batch_Client:
 	def __init__(self,file):
-		self.f = open(file)
+		self.filepath = file
+		self.file = open(file)
 		self.path = os.getcwd()
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
+		# thread1 = myThread(self.pre_process)
+		thread = myThread(send_email.run,args=['shengdao',self.filepath])
+		thread.start()
 		self.pre_process()
 
 	def pre_process(self):
 		self.file_process()
 		print('正在获取auths...')
-		thread(self.get_auths())
+		self.get_auths()
 		self.activities = self.clients[0]['client'].search_activity()
 
 	def file_process(self):
 		try:
-			for line in self.f:
+			for line in self.file:
 				items = line.strip().split(' ')
 				self.shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2]})
 		except:
@@ -56,6 +61,7 @@ class Batch_Client:
 				exit()
 			except IndexError:
 				print(items['name']+'密码错误,跳过')
+		print('批量登录成功！')
 
 	def search_activity_print(self):
 		self.clients[0]['client'].search_activity_print()
@@ -120,3 +126,22 @@ class Batch_Client:
 			f.write('\n'.join(text))
 			f.close()
 		print('文件已成:'+path)
+
+	def server(self):
+		while True:
+			cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入4生成中签文件,输入0退出:")
+			if cmd == '1':
+				self.clients[0]['client'].search_activity_print()
+				if len(self.clients[0]['client'].search_activity()) == 0:
+					continue
+				itemid = input('请输入登记商品的编号:')
+				shopid = input('请输入门店编号:')
+				self.register(itemid,shopid)
+			elif cmd == '2':
+				self.search_register()
+			elif cmd == '3':
+				self.search_lucky()
+			elif cmd == '4':
+				self.make_file()
+			elif cmd == '0':
+				exit()
