@@ -83,7 +83,10 @@ class ShengdaoClient:
 		result = requests.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
 		# print(result.text)
 		for shoe in json.loads(result.text):
-			activities.append({'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops']})
+			info = {'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops']}
+			if 'shoesSizes' in shoe.keys():				# 需要选码的鞋
+				info['shoesSizes'] = shoe['shoesSizes']
+			activities.append(info)
 		return activities
 
 	def search_activity_print(self): 
@@ -98,7 +101,10 @@ class ShengdaoClient:
 				print('可登记鞋店:')
 				for shop in shoe['activityShops']:
 					print('鞋店编号:'+str(shop['activityShopId']))
-					print('鞋店名称:'+str(shop['shopName']))
+					print('鞋店名称:'+str(shop['shopName']))	
+				if 'shoesSizes' in shoe.keys():
+					print('可登记鞋码:')
+					print(shoe['shoesSizes'])	
 				print('='*50)
 
 	def register_all(self):
@@ -127,7 +133,7 @@ class ShengdaoClient:
 			return
 		print(self.name+'现在没有可登记商品')
 
-	def register(self,activityItemId,activityShopId):
+	def register(self,activityItemId,activityShopId,shoesSize=''):
 		headers = {
 			'Authorization': self.auth['Authorization'],
 			'Origin': 'http://wx.yysports.com',
@@ -146,6 +152,9 @@ class ShengdaoClient:
 					shoeName = shoe['itemName']
 							  
 			data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
+			if shoesSize != '':
+				data = [{"activityItemId":activityItemId,"activityShopId":activityShopId,"shoesSize":shoesSize}]
+
 			data = json.dumps(data)
 			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
 			if response.status_code == 200:

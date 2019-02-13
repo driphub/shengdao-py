@@ -72,10 +72,10 @@ class Batch_Client:
 			 items['client'].register_all()
 		print('批量登记完毕')
 
-	def register(self,activityItemId,activityShopId):
+	def register(self,activityItemId,activityShopId,shoesSize=''):
 		print('开始登记')
 		for items in tqdm(self.clients):
-			items['client'].register(activityItemId,activityShopId)
+			items['client'].register(activityItemId,activityShopId,shoesSize)
 		print('批量登记完毕')
 
 	def print_activity_then_register(self):
@@ -136,7 +136,12 @@ class Batch_Client:
 					continue
 				itemid = input('请输入登记商品的编号:')
 				shopid = input('请输入门店编号:')
-				self.register(itemid,shopid)
+				shoesSizes = ''
+				for shoe in self.clients[0]['client'].search_activity():
+					if shoe['activityItemId'] == int(itemid):
+						if 'shoesSizes' in shoe.keys():
+							shoesSizes = input('请输入鞋码:')
+				self.register(itemid,shopid,shoesSizes)
 			elif cmd == '2':
 				self.search_register()
 			elif cmd == '3':
