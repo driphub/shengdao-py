@@ -39,7 +39,7 @@ class Batch_Client:
 		self.file_process()
 		print('正在获取auths...')
 		self.get_auths()
-		self.activities = self.clients[0]['client'].search_activity()
+		self.activities = self.clients[0]['client'].activities
 
 	def file_process(self):
 		try:
@@ -78,17 +78,17 @@ class Batch_Client:
 			items['client'].register(activityItemId,activityShopId,shoesSize)
 		print('批量登记完毕')
 
-	def print_activity_then_register(self):
-		self.search_activity_print()
-		if len(self.activities) == 0:
-			return
-		itemid = input('请输入登记商品的编号:')
-		shopid = input('请输入门店编号:')
-		self.register(itemid,shopid)
+	# def print_activity_then_register(self):
+	# 	self.search_activity_print()
+	# 	if len(self.activities) == 0:
+	# 		return
+	# 	itemid = input('请输入登记商品的编号:')
+	# 	shopid = input('请输入门店编号:')
+	# 	self.register(itemid,shopid)
 
 	def search_register(self):
 		for items in self.clients:
-			shoes = items['client'].search_register()
+			shoes = items['client'].shoes
 			# result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=items['auth'])
 			# print(items['name']+"登记数量:"+str(len(json.loads(result.text))))		
 			print(items['name']+'登记'+str(len(shoes))+'双:')
@@ -131,13 +131,14 @@ class Batch_Client:
 		while True:
 			cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入4生成中签文件,输入0退出:")
 			if cmd == '1':
+				activities = self.clients[0]['client'].activities
 				self.clients[0]['client'].search_activity_print()
-				if len(self.clients[0]['client'].search_activity()) == 0:
+				if len(activities) == 0:
 					continue
 				itemid = input('请输入登记商品的编号:')
 				shopid = input('请输入门店编号:')
 				shoesSizes = ''
-				for shoe in self.clients[0]['client'].search_activity():
+				for shoe in activities:
 					if shoe['activityItemId'] == int(itemid):
 						if 'shoesSizes' in shoe.keys():
 							shoesSizes = input('请输入鞋码:')

@@ -17,12 +17,14 @@ class ShengdaoClient:
 			self.name = userid
 		else:
 			self.name = name
-		self.pre_process()
-
-	def pre_process(self):
 		self.auth = self.get_auth()
-		self.activities = self.search_activity()
 		self.shoes = self.search_register()
+		self.activities = self.search_activity()
+		# shoes 和 activities 永远维持最新状态,避免每次都要调用search方法
+
+	# def pre_process(self):
+	# 	self.activities = self.search_activity()
+	# 	self.shoes = self.search_register()
 
 	def get_auth(self):	
 		session = requests.session()
@@ -90,6 +92,7 @@ class ShengdaoClient:
 		return activities
 
 	def search_activity_print(self): 
+		self.activities = self.search_activity()
 		if len(self.activities) == 0:
 			print(self.name+'现在没有可登记商品')
 		else:
@@ -108,7 +111,6 @@ class ShengdaoClient:
 				print('='*50)
 
 	def register_all(self):
-
 		headers = {
 			'Authorization': self.auth['Authorization'],
 			'Origin': 'http://wx.yysports.com',
@@ -128,12 +130,15 @@ class ShengdaoClient:
 			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
 			if response.status_code == 200:
 				print(self.name + ' ' + shoe['itemName'] + ' ' + '登记成功')
+				self.activities = self.search_activity()
+				self.shoes = self.search_register()
 			else:
 				print(self.name + ' ' + shoe['itemName'] + ' ' + '登记失败')
 			return
 		print(self.name+'现在没有可登记商品')
 
 	def register(self,activityItemId,activityShopId,shoesSize=''):
+		
 		headers = {
 			'Authorization': self.auth['Authorization'],
 			'Origin': 'http://wx.yysports.com',
@@ -159,6 +164,8 @@ class ShengdaoClient:
 			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
 			if response.status_code == 200:
 				print(self.name + ' ' + shoeName + ' ' + '登记成功')
+				self.activities = self.search_activity()
+				self.shoes = self.search_register()
 			else:
 				print(self.name + ' ' + shoeName + ' ' + '登记失败')
 			return
@@ -166,6 +173,7 @@ class ShengdaoClient:
 			print(self.name + ' ' + '登记失败')
 			return
 		print(self.name+'现在没有可登记商品')
+
 
 
 	def search_register(self):
@@ -176,10 +184,9 @@ class ShengdaoClient:
 		return shoes
 
 	def search_register_print(self):
-
-		result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=self.auth)
-		print(self.name+"登记数量:"+str(len(json.loads(result.text))))		
-		for shoe in json.loads(result.text):
-			print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+shoe_state[shoe['state']])
+		shoes = self.search_register()
+		print(self.name+"登记数量:"+str(len(result)))		
+		for shoe in shoes:
+			print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+shoe['state'])
 
 
