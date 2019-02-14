@@ -39,7 +39,7 @@ class Batch_Client:
 		self.file_process()
 		print('正在获取auths...')
 		self.get_auths()
-		self.activities = self.clients[0]['client'].activities
+		self.activities = self.clients[0].activities
 
 	def file_process(self):
 		try:
@@ -55,7 +55,7 @@ class Batch_Client:
 		for items in tqdm(self.shengdaolist):
 			try:
 				client = ShengdaoClient(items['userid'],items['password'],items['name'])
-				self.clients.append({'name':items['name'],'client':client})
+				self.clients.append(client)
 				# self.auths.append({'name':items['name'],'auth':client.get_auth()})
 			except KeyboardInterrupt:
 				exit()
@@ -64,18 +64,18 @@ class Batch_Client:
 		print('批量登录成功！')
 
 	def search_activity_print(self):
-		self.clients[0]['client'].search_activity_print()
+		self.clients[0].search_activity_print()
 
 	def register_all(self):
 		print('开始登记')
 		for items in tqdm(self.clients):
-			 items['client'].register_all()
+			 items.register_all()
 		print('批量登记完毕')
 
 	def register(self,activityItemId,activityShopId,shoesSize=''):
 		print('开始登记')
 		for items in tqdm(self.clients):
-			items['client'].register(activityItemId,activityShopId,shoesSize)
+			items.register(activityItemId,activityShopId,shoesSize)
 		print('批量登记完毕')
 
 	# def print_activity_then_register(self):
@@ -88,27 +88,25 @@ class Batch_Client:
 
 	def search_register(self):
 		for items in self.clients:
-			shoes = items['client'].shoes
-			# result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=items['auth'])
-			# print(items['name']+"登记数量:"+str(len(json.loads(result.text))))		
-			print(items['name']+'登记'+str(len(shoes))+'双:')
+			shoes = items.shoes
+			print(items.name+'登记'+str(len(shoes))+'双:')
 			for shoe in shoes:
 				print(shoe['itemName']+' '+shoe['shopName']+' '+shoe['state'])
 
 	def search_lucky(self):
 		print('中签名单:')
 		for items in self.clients:
-			shoes = items['client'].shoes
+			shoes = items.shoes
 			for shoe in shoes: 
 				if shoe['state'] == '已中签':
-					print(items['name']+' '+shoe['itemName']+' '+shoe['shopName']+' 中签!')
+					print(items.name+' '+shoe['itemName']+' '+shoe['shopName']+' 中签!')
 
 	def make_file(self):
 		text = []
 		print('当前中签鞋:')
 		lucky_shoes = set()
 		for items in self.clients:
-			shoes = items['client'].shoes
+			shoes = items.shoes
 			for shoe in shoes: 
 				if shoe['state'] == '已中签':
 					lucky_shoes.add(shoe['itemName'])
@@ -116,11 +114,11 @@ class Batch_Client:
 			print(shoe)
 		shoeName = input('请输入需要生成鞋子的名称:')
 		for items in self.clients:
-			shoes = items['client'].shoes
+			shoes = items.shoes
 			for shoe in shoes: 
 				if shoe['itemName'] == shoeName:
 					if shoe['state'] == '已中签':
-						text.append(items['name']+' '+items['client'].userid+' ')
+						text.append(items.name+' '+items.userid+' ')
 		path = os.path.join(self.path,shoeName+'.txt')
 		with open(path, 'w') as f:
 			f.write('\n'.join(text))
@@ -131,17 +129,17 @@ class Batch_Client:
 		while True:
 			cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入4生成中签文件,输入0退出:")
 			if cmd == '1':
-				activities = self.clients[0]['client'].activities
-				self.clients[0]['client'].search_activity_print()
+				activities = self.clients[0].activities
+				self.clients[0].search_activity_print()
 				if len(activities) == 0:
 					continue
 				itemid = input('请输入登记商品的编号:')
 				shopid = input('请输入门店编号:')
 				shoesSizes = ''
-				for shoe in activities:
-					if shoe['activityItemId'] == int(itemid):
-						if 'shoesSizes' in shoe.keys():
-							shoesSizes = input('请输入鞋码:')
+				shoe = self.clients[0].find_activity_by_id(itemid)
+				if shoe != None:
+					if len(shoe['shoesSizes']) != 0:
+						shoesSizes = input('请输入鞋码:')
 				self.register(itemid,shopid,shoesSizes)
 			elif cmd == '2':
 				self.search_register()

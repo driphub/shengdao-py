@@ -85,10 +85,7 @@ class ShengdaoClient:
 		result = requests.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
 		# print(result.text)
 		for shoe in json.loads(result.text):
-			info = {'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops']}
-			if 'shoesSizes' in shoe.keys():				# 需要选码的鞋
-				info['shoesSizes'] = shoe['shoesSizes']
-			activities.append(info)
+			activities.append({'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops'],"shoesSizes":shoe['shoesSizes']})
 		return activities
 
 	def search_activity_print(self): 
@@ -104,11 +101,15 @@ class ShengdaoClient:
 				print('可登记鞋店:')
 				for shop in shoe['activityShops']:
 					print('鞋店编号:'+str(shop['activityShopId']))
-					print('鞋店名称:'+str(shop['shopName']))	
-				if 'shoesSizes' in shoe.keys():
-					print('可登记鞋码:')
-					print(shoe['shoesSizes'])	
+					print('鞋店名称:'+str(shop['shopName']))
+				print('可登记鞋码:'+str(shoe['shoesSizes']))
 				print('='*50)
+
+	def find_activity_by_id(self,_id):
+		for shoe in self.activities:
+			if str(_id) == str(shoe['activityItemId']):
+				return shoe
+		return
 
 	def register_all(self):
 		headers = {
@@ -152,10 +153,12 @@ class ShengdaoClient:
 			'Connection': 'keep-alive',
 		}
 		try:
-			for shoe in self.activities:
-				if str(activityItemId) == str(shoe['activityItemId']):
-					shoeName = shoe['itemName']
-							  
+			# for shoe in self.activities:
+			# 	if str(activityItemId) == str(shoe['activityItemId']):
+			# 		shoeName = shoe['itemName']
+			shoe = self.find_activity_by_id(activityItemId)
+			shoeName = shoe['itemName']
+
 			data = [{"activityItemId":activityItemId,"activityShopId":activityShopId}]
 			if shoesSize != '':
 				data = [{"activityItemId":activityItemId,"activityShopId":activityShopId,"shoesSize":shoesSize}]
