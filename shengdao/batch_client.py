@@ -44,6 +44,8 @@ class Batch_Client:
 	def file_process(self):
 		try:
 			for line in self.file:
+				if '已知信息' in line:
+					break
 				items = line.strip().split(' ')
 				self.shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2]})
 		except:
