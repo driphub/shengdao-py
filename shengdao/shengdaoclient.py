@@ -19,13 +19,15 @@ def retry_log(attempts, delay):
 
 
 def retry_if_not_passworderror(exception):
-	if not isinstance(exception, PassWordException) or not isinstance(exception, KeyboardInterrupt):
+	if isinstance(exception, PassWordException) or isinstance(exception, KeyboardInterrupt):
 		return False
+	else:
+		return True
 	# 当密码错误时不重试，只有在网络不好的状况下重试
 
 class ShengdaoClient:
 
-	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror) # 好像木有用
+	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
 	def __init__(self,userid,password,name=None):
 		self.userid = userid
 		self.password = password
