@@ -30,8 +30,8 @@ class Batch_Client:
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
-		thread = myThread(send_email.run,args=['shengdao',self.filepath])
-		thread.start()
+# 		thread = myThread(send_email.run,args=['shengdao',self.filepath])
+# 		thread.start()
 		self.pre_process()
 
 	def pre_process(self):
