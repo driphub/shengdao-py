@@ -7,7 +7,7 @@ import urllib
 import time
 import threading
 from . import send_email
-from .shengdaoclient import ShengdaoClient
+from .shengdaoclient import ShengdaoClient,PassWordException
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
@@ -30,7 +30,6 @@ class Batch_Client:
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
-		# thread1 = myThread(self.pre_process)
 		thread = myThread(send_email.run,args=['shengdao',self.filepath])
 		thread.start()
 		self.pre_process()
@@ -54,6 +53,7 @@ class Batch_Client:
 			raise Exception("账号密码文件格式出错")
 
 	def get_auths(self):
+		
 		for items in tqdm(self.shengdaolist):
 			try:
 				client = ShengdaoClient(items['userid'],items['password'],items['name'])
@@ -61,7 +61,7 @@ class Batch_Client:
 				# self.auths.append({'name':items['name'],'auth':client.get_auth()})
 			except KeyboardInterrupt:
 				exit()
-			except IndexError:
+			except PassWordException:
 				print(items['name']+'密码错误,跳过')
 		print('批量登录成功！')
 

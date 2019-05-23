@@ -6,10 +6,26 @@ import json
 import urllib
 import time
 import threading
+from retrying import retry
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
+class PassWordException(Exception):
+	def __init__(self):
+		pass
+
+def retry_log(attempts, delay):
+	print('retry')
+
+
+def retry_if_not_passworderror(exception):
+	if not isinstance(exception, PassWordException) or not isinstance(exception, KeyboardInterrupt):
+		return False
+	# 当密码错误时不重试，只有在网络不好的状况下重试
+
 class ShengdaoClient:
+
+	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror) # 好像木有用
 	def __init__(self,userid,password,name=None):
 		self.userid = userid
 		self.password = password
@@ -26,9 +42,9 @@ class ShengdaoClient:
 	# 	self.activities = self.search_activity()
 	# 	self.shoes = self.search_register()
 
+
 	def get_auth(self):	
 		session = requests.session()
-
 		headers = {
 			'Origin': 'https://sso-prod.yysports.com',
 			'Accept-Encoding': 'gzip, deflate, br',
@@ -67,12 +83,19 @@ class ShengdaoClient:
 		)
 
 		response = requests.get('https://sso-prod.yysports.com/oauth/authorize', headers=headers, params=params, cookies=cookies)
-		code = response.url.split('code=')[1].split('&')[0]
-
-
+		try:
+			code = response.url.split('code=')[1].split('&')[0]
+		except:
+			raise PassWordException
 		result = requests.get('http://wx.yysports.com/limitelottery/regist/checkssologin?code='+code+'&redirecturl=form.html')
+		if 'jwt' in json.loads(result.text).keys():
+			token = json.loads(result.text)['jwt']
 
-		token = json.loads(result.text)['jwt']
+		# while 'jwt' not in json.loads(result.text).keys():
+		# 	print('retry jwt')
+		# 	result = requests.get('http://wx.yysports.com/limitelottery/regist/checkssologin?code='+code+'&redirecturl=form.html')
+		# 	if 'jwt' in json.loads(result.text).keys():
+		# 		token = json.loads(result.text)['jwt']
 
 		header = {
 			"Authorization": "Bearer " + token
@@ -139,7 +162,6 @@ class ShengdaoClient:
 		print(self.name+'现在没有可登记商品')
 
 	def register(self,activityItemId,activityShopId,shoesSize=''):
-		
 		headers = {
 			'Authorization': self.auth['Authorization'],
 			'Origin': 'http://wx.yysports.com',
@@ -183,7 +205,10 @@ class ShengdaoClient:
 		shoes = []
 		result = requests.get('http://wx.yysports.com/limitelottery/activity/registitems',headers=self.auth)
 		for shoe in json.loads(result.text):
-			shoes.append({'itemName':shoe['itemName'],'shopName':shoe['activityShops'][0]['shopName'],'state':shoe_state[shoe['state']]})
+			if len(shoe['activityShops']) != 0: # 存在没有shop的情况
+				shoes.append({'itemName':shoe['itemName'],'shopName':shoe['activityShops'][0]['shopName'],'state':shoe_state[shoe['state']]})
+			else:
+				shoes.append({'itemName':shoe['itemName'],'shopName':'','state':shoe_state[shoe['state']]})
 		return shoes
 
 	def search_register_print(self):
@@ -191,5 +216,4 @@ class ShengdaoClient:
 		print(self.name+"登记数量:"+str(len(result)))		
 		for shoe in shoes:
 			print(shoe['itemName']+' '+shoe['activityShops'][0]['shopName']+' '+shoe['state'])
-
 
