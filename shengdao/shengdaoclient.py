@@ -86,10 +86,11 @@ class ShengdaoClient:
 
 		response = requests.get('https://sso-prod.yysports.com/oauth/authorize', headers=headers, params=params, cookies=cookies)
 		try:
-			code = response.url.split('code=')[1].split('&')[0]
+			self.code = response.url.split('code=')[1].split('&')[0]
 		except:
 			raise PassWordException
-		result = requests.get('http://wx.yysports.com/limitelottery/regist/checkssologin?code='+code+'&redirecturl=form.html')
+		result = requests.get('http://wx.yysports.com/limitelottery/regist/checkssologin?code='+self.code+'&redirecturl=form.html')
+		
 		if 'jwt' in json.loads(result.text).keys():
 			token = json.loads(result.text)['jwt']
 
@@ -104,6 +105,23 @@ class ShengdaoClient:
 		}
 		self.auth = header
 		return header
+
+	def id_verify(self,name,uid,mobile):
+		headers = {
+			'Authorization':self.auth,
+			'Origin': 'http://wx.yysports.com',
+			'Accept-Encoding': 'gzip, deflate',
+			'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+			'Content-Type': 'application/json',
+			'Accept': '*/*',
+			'Referer': 'http://wx.yysports.com/limitelottery/form.html?code='+self.code+'&state=284a5e319abb4833bdaf39322beb4d7b',
+			'X-Requested-With': 'XMLHttpRequest',
+			'Connection': 'keep-alive',
+		}
+		data = '{"userName":'+name+',"personalId":"320705199704293514"'+uid+',"mobile":'+mobile+'}'
+
+		response = requests.post('http://wx.yysports.com/limitelottery/regist', headers=headers, data=data)
 
 	def search_activity(self): 
 		activities = []										  
