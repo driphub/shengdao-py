@@ -46,7 +46,6 @@ class ShengdaoClient:
 
 
 	def get_auth(self):	
-		session = requests.session()
 		headers = {
 			'Origin': 'https://sso-prod.yysports.com',
 			'Accept-Encoding': 'gzip, deflate, br',
@@ -61,9 +60,10 @@ class ShengdaoClient:
 		data = {"username":self.userid,"password":self.password,"client_id":"matrix","redirect_uri":"http://wx.yysports.com/limitelottery/form.html","response_type":"code"}
 		data = json.dumps(data)
 
-		response = session.post('https://sso-prod.yysports.com/api/member/pousheng/account/login', headers=headers, data=data)
-		cookies = requests.utils.dict_from_cookiejar(session.cookies)['tssoid']
-
+		response = requests.post('https://sso-prod.yysports.com/api/member/pousheng/account/login', headers=headers, data=data)
+		cookies = response.headers['Set-Cookie'].split('tssoid=')[1].split(';Path')[0]
+		# cookies = requests.utils.dict_from_cookiejar(session.cookies)['tssoid']
+		# 这里是set-cookies，所以cookies已经在session里了，也可以从response-header拿
 		cookies = {
 			'tssoid': cookies
 		}
