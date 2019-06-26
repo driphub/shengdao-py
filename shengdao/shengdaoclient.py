@@ -90,9 +90,10 @@ class ShengdaoClient:
 		except:
 			raise PassWordException
 		result = requests.get('http://wx.yysports.com/limitelottery/regist/checkssologin?code='+self.code+'&redirecturl=form.html')
-		
+		self.uid = result.headers['Set-Cookie'].split('uid=')[1].split(';Max-Age')[0]
+
 		if 'jwt' in json.loads(result.text).keys():
-			token = json.loads(result.text)['jwt']
+			self.token = json.loads(result.text)['jwt']
 
 		# while 'jwt' not in json.loads(result.text).keys():
 		# 	print('retry jwt')
@@ -101,27 +102,39 @@ class ShengdaoClient:
 		# 		token = json.loads(result.text)['jwt']
 
 		header = {
-			"Authorization": "Bearer " + token
+			"Authorization": "Bearer " + self.token
 		}
 		self.auth = header
 		return header
 
-	def id_verify(self,name,uid,mobile):
+	def id_verify(self,name,id_number,mobile):
+		cookies = {
+			'uid': self.uid,
+			'code': self.code,
+		}
+
 		headers = {
-			'Authorization':self.auth,
+			'Authorization': "Bearer " + self.token,
 			'Origin': 'http://wx.yysports.com',
 			'Accept-Encoding': 'gzip, deflate',
 			'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
 			'Content-Type': 'application/json',
 			'Accept': '*/*',
-			'Referer': 'http://wx.yysports.com/limitelottery/form.html?code='+self.code+'&state=284a5e319abb4833bdaf39322beb4d7b',
+			'Referer': 'http://wx.yysports.com/limitelottery/form.html?code=00Ixa4&state=ea6a0a08109f48cd903de39b6fc55d60',
 			'X-Requested-With': 'XMLHttpRequest',
 			'Connection': 'keep-alive',
 		}
-		data = '{"userName":'+name+',"personalId":"320705199704293514"'+uid+',"mobile":'+mobile+'}'
 
-		response = requests.post('http://wx.yysports.com/limitelottery/regist', headers=headers, data=data)
+		data = '{"uid":"%s","userName":"%s","personalId":"%s","mobile":"%s"}'%(self.uid,name,id_number,mobile)
+		response = requests.post('http://wx.yysports.com/limitelottery/regist', headers=headers, cookies=cookies,data=data.encode('utf-8'), verify=False)
+		if response.text.strip() == '':
+			print('身份验证成功!')
+			return 1
+		else:
+			print(response.text)
+			return 0
+
 
 	def search_activity(self): 
 		activities = []										  
