@@ -27,7 +27,7 @@ for line in account_file:
     shengdaolist.append({'userid':items[0],'password':items[1]})
 
 count = 0
-for i in range(0,len(shengdaolist)-1):
+for i in range(0,len(shengdaolist)):
     client = ShengdaoClient(shengdaolist[i]['userid'],shengdaolist[i]['password'])
     status = client.id_verify(names[i],ids[i],shengdaolist[i]['userid'][1:])
     if status == 1:
