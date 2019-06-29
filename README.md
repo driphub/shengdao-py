@@ -6,7 +6,7 @@ shengdao-py : 胜道体育非官方API库 with Python3
 ## 功能
 由于胜道体育没有公开API，加上受到zhihu-python项目的启发，在Python3下重新写了一个胜道体育的数据解析模块。
 
-提供的功能一句话概括为，提供模拟登陆，查询中签或者登记数据，登记商品，和批量操作
+提供的功能一句话概括为，提供模拟登陆，查询中签或者登记商品，认证账号，和批量操作
 
 示例代码:
 ```
@@ -14,13 +14,19 @@ from shengdao import ShengdaoClient
 
 client = ShengdaoClient('123','123','小明')
 
+client.id_verify('小明','123','123456')
+
 client.search_activity()
 
 client.search_register()
+
 ```
 
 返回:
 ```
+
+身份验证成功!
+
 现在无活动
 
 小明登记数量:5
@@ -33,7 +39,9 @@ AIR JORDAN 1 RETRO HIGH OG 京朝阳世贸天阶胜道NK JD-YY 未中签
 
 AIR JORDAN 1 RETRO HIGH OG BG 京朝阳世贸天阶胜道NK JD-YY 未中签
 
-WMNS AIR JORDAN 1 HIGH OG NRG 京朝阳世贸天阶胜道NK JD-YY 未中签
+WMNS AIR JORDAN 1 HIGH OG NRG 京朝阳世贸天阶胜道NK JD-YY 中签
+
+
 ```
 解析思路
 https://download.csdn.net/download/m0_37694033/10878453
