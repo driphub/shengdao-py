@@ -23,13 +23,14 @@ class myThread(threading.Thread):
 			self.func(self.args[0],self.args[1])
 
 class Batch_Client:
-	def __init__(self,file):
+	def __init__(self,file,activityId):
 		self.filepath = file
 		self.file = open(file)
 		self.path = os.getcwd()
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
+		self.activityId = activityId
 # 		thread = myThread(send_email.run,args=['shengdao',self.filepath])
 # 		thread.start()
 		self.pre_process()
@@ -56,9 +57,8 @@ class Batch_Client:
 		
 		for items in tqdm(self.shengdaolist):
 			try:
-				client = ShengdaoClient(items['userid'],items['password'],items['name'])
+				client = ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId)
 				self.clients.append(client)
-				# self.auths.append({'name':items['name'],'auth':client.get_auth()})
 			except KeyboardInterrupt:
 				exit()
 			except PassWordException:
