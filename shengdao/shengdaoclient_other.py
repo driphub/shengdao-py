@@ -28,16 +28,18 @@ def retry_if_not_passworderror(exception):
 class ShengdaoClient:
 
 	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
-	def __init__(self,userid,password,name=None):
+	def __init__(self,userid,password,name=None,activityId=None):
 		self.userid = userid
 		self.password = password
 		if name == None:
 			self.name = userid
 		else:
 			self.name = name
+		self.activityId = activityId
 		self.auth = self.get_auth()
 		self.shoes = self.search_register()
 		self.activities = self.search_activity()
+		
 		# shoes 和 activities 永远维持最新状态,避免每次都要调用search方法
 
 	# def pre_process(self):
@@ -137,14 +139,13 @@ class ShengdaoClient:
 
 
 	def search_activity(self): 
-		activities = []										  
-		result = requests.get('http://wx.yysports.com/limitelottery/activity',headers=self.auth)
-		# print(result.text)
+		activities = []				  
+		result = requests.get('http://wx.yysports.com/limitelottery/activity?activityId='+self.activityId,headers=self.auth)
 		for shoe in json.loads(result.text):
 			activities.append({'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops'],"shoesSizes":shoe['shoesSizes']})
 		return activities
 
-	def search_activity_print(self): 
+	def search_activity_print(self):
 		self.activities = self.search_activity()
 		if len(self.activities) == 0:
 			print(self.name+'现在没有可登记商品')
@@ -184,7 +185,7 @@ class ShengdaoClient:
 		for shoe in self.activities:
 			data = [{"activityItemId":shoe['activityItemId'],"activity ShopId":"1640"}]
 			data = json.dumps(data)
-			response = requests.post('http://wx.yysports.com/limitelottery/activity', headers=headers,data=data)
+			response = requests.post('http://wx.yysports.com/limitelottery/activity?activityId='+self.activityId, headers=headers,data=data)
 			if response.status_code == 200:
 				print(self.name + ' ' + shoe['itemName'] + ' ' + '登记成功')
 				self.activities = self.search_activity()

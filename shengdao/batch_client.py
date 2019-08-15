@@ -7,7 +7,8 @@ import urllib
 import time
 import threading
 from . import send_email
-from .shengdaoclient import ShengdaoClient,PassWordException
+from .shengdaoclient_beijing import ShengdaoClient as ShengdaoClient_Beijing,PassWordException
+from .shengdaoclient_other import ShengdaoClient as ShengdaoClient_Other,PassWordException
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
@@ -23,13 +24,18 @@ class myThread(threading.Thread):
 			self.func(self.args[0],self.args[1])
 
 class Batch_Client:
-	def __init__(self,file):
+	def __init__(self,file,activityId,city):
 		self.filepath = file
 		self.file = open(file)
 		self.path = os.getcwd()
+		if city == '北京':
+			self.ShengdaoClient = ShengdaoClient_Beijing
+		else:
+			self.ShengdaoClient = ShengdaoClient_Other			
 		self.shengdaolist = []
 		self.clients = []
 		self.activities = []
+		self.activityId = activityId
 # 		thread = myThread(send_email.run,args=['shengdao',self.filepath])
 # 		thread.start()
 		self.pre_process()
@@ -56,9 +62,8 @@ class Batch_Client:
 		
 		for items in tqdm(self.shengdaolist):
 			try:
-				client = ShengdaoClient(items['userid'],items['password'],items['name'])
+				client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId)
 				self.clients.append(client)
-				# self.auths.append({'name':items['name'],'auth':client.get_auth()})
 			except KeyboardInterrupt:
 				exit()
 			except PassWordException:
