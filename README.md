@@ -10,9 +10,9 @@ Try to analyse the Auth API which is not provided by official website, and provi
 
 ## To shoes lover
 
-本库纯属本人一时兴起而产生。如将本库用于非法用途及商业行为，本人概不承担后果，请谨慎用之，愿所有爱鞋人士终得爱鞋。
+本库纯属本人一时兴起而产生。切勿使用本库用于非法用途及商业行为，本人概不承担后果，请谨慎用之，愿所有爱鞋人士终得爱鞋。
 
-This library is born by my purely intereting. If the library is used for illegal purposes and commercial activities, I will not bear the consequences, please use it with caution. Wish all shoes lovers get own shoes.
+This library is born by my purely intereting. Please do not use the library for illegal purposes and commercial activities, I will not bear the consequences, please use it with caution. Wish all shoes lovers get own shoes.
 
 
 ## Funtion
