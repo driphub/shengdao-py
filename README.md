@@ -8,6 +8,11 @@ YySport unofficial api library with Python3
 
 Try to analyse the Auth API which is not provided by official website, and provide elegant use, which is no longer maintained.
 
+与胜道切磋的一年多时间里，胜道后端程序员用尽各种方法禁止爬虫程序。终于在2019年10月20日启动封ip策略，由于加入代理ip成本过高，弃坑。(貌似封ip策略只针对登陆请求，而token又是不变的，可保存token到本地实现登陆功能)
+
+In the more than a year of learning with Shengdao, the runners behind the road have used various methods to prohibit crawling programs. Finally, on October 20, 2019, the ip strategy was launched. Due to the high cost of joining the proxy ip, give up.
+
+
 ## To shoes lover
 
 本库纯属本人一时兴起而产生。切勿使用本库用于非法用途及商业行为，本人概不承担后果，请谨慎用之，愿所有爱鞋人士终得爱鞋。
