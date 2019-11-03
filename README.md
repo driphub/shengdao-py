@@ -8,9 +8,9 @@ YySport unofficial api library with Python3
 
 Try to analyse the Auth API which is not provided by official website, and provide elegant use, which is no longer maintained.
 
-与胜道切磋的一年多时间里，胜道后端程序员用尽各种方法禁止爬虫程序。终于在2019年10月20日启动封ip策略，由于加入代理ip成本过高，弃坑。(貌似封ip策略只针对登陆请求，而token又是不变的，可保存token到本地实现登陆功能)
+与胜道切磋的一年多时间里，胜道后端程序员用尽各种方法禁止爬虫程序。终于在2019年10月20日启动封ip策略。不过通过我机智地观察，封ip策略只针对登陆请求，登记请求，查询请求不再限制ip。而登陆请求到的auth每次不变的，可保存auth到本地实现登陆功能。比之前更快。
 
-In the more than a year of learning with Shengdao, the runners behind the road have used various methods to prohibit crawling programs. Finally, on October 20, 2019, the ip strategy was launched. Due to the high cost of joining the proxy ip, give up.
+In the more than a year of learning with Shengdao, the runners behind the road have used various methods to prohibit crawling programs. Finally, on October 20, 2019, the ip strategy was launched. But i found that the ip strategy only limit login requests and not limit regist and search requests. Since the auth that get from login request will not change in every login request,i can save auth and implement login. I implemented it in the latest version, faster than older.
 
 
 ## To shoes lover

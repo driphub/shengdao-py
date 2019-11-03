@@ -27,7 +27,7 @@ def retry_if_not_passworderror(exception):
 
 class ShengdaoClient:
 
-	# @retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
+	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
 	def __init__(self,userid,password,name=None,activityId=None,auth=None):
 		self.userid = userid
 		self.password = password

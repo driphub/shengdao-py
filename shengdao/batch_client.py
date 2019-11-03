@@ -26,7 +26,7 @@ class myThread(threading.Thread):
 class Batch_Client:
 	def __init__(self,file,activityId,city,method):
 		self.filepath = file
-		self.file = open(file)
+		self.file = open(file,encoding="utf-8")
 		self.path = os.getcwd()
 		self.method = int(method)
 		if city == '北京':
