@@ -24,10 +24,11 @@ class myThread(threading.Thread):
 			self.func(self.args[0],self.args[1])
 
 class Batch_Client:
-	def __init__(self,file,activityId,city):
+	def __init__(self,file,activityId,city,method):
 		self.filepath = file
 		self.file = open(file)
 		self.path = os.getcwd()
+		self.method = int(method)
 		if city == '北京':
 			self.ShengdaoClient = ShengdaoClient_Beijing
 		else:
@@ -51,24 +52,38 @@ class Batch_Client:
 			for line in self.file:
 				if '已知信息' in line:
 					break
-				items = line.strip().split(' ')
-				self.shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2]})
+				if self.method == 1:
+					items = line.strip().split(' ')
+					self.shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2]})
+				else:
+					items = line.strip().split(',')
+					self.shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2],'auth':items[3]})
 		except:
 			print('='*50+'此行格式错误'+'='*50)
 			print(line)
 			raise Exception("账号密码文件格式出错")
 
 	def get_auths(self):
-		
-		for items in tqdm(self.shengdaolist):
-			try:
-				client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId)
-				self.clients.append(client)
-			except KeyboardInterrupt:
-				exit()
-			except PassWordException:
-				print(items['name']+'密码错误,跳过')
-		print('批量登录成功！')
+		if 'auth' not in self.shengdaolist[0].keys():
+			for items in tqdm(self.shengdaolist):
+				try:
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId)
+					self.clients.append(client)
+				except KeyboardInterrupt:
+					exit()
+				except PassWordException:
+					print(items['name']+'密码错误,跳过')
+			print('批量登录成功！')
+		else:
+			for items in tqdm(self.shengdaolist):
+				try:
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId,items['auth'])
+					self.clients.append(client)
+				except KeyboardInterrupt:
+					exit()
+				except PassWordException:
+					print(items['name']+'密码错误,跳过')
+			print('批量登录成功！')
 
 	def search_activity_print(self):
 		self.clients[0].search_activity_print()
