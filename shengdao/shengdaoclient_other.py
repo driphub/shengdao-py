@@ -28,7 +28,7 @@ def retry_if_not_passworderror(exception):
 class ShengdaoClient:
 
 	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
-	def __init__(self,userid,password,name=None,activityId=None):
+	def __init__(self,userid,password,name=None,activityId=None,auth=None):
 		self.userid = userid
 		self.password = password
 		if name == None:
@@ -36,7 +36,12 @@ class ShengdaoClient:
 		else:
 			self.name = name
 		self.activityId = activityId
-		self.auth = self.get_auth()
+		if auth == None:
+			self.auth = self.get_auth()
+			with open('auths.txt','a+') as f:
+				f.write(self.name+','+self.userid+','+self.password+','+str(self.auth)+'\n')
+		else:
+			self.auth = eval(auth)
 		self.shoes = self.search_register()
 		self.activities = self.search_activity()
 		
