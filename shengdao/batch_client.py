@@ -9,6 +9,7 @@ import threading
 from . import send_email
 from .shengdaoclient_beijing import ShengdaoClient as ShengdaoClient_Beijing,PassWordException
 from .shengdaoclient_other import ShengdaoClient as ShengdaoClient_Other,PassWordException
+from .shengdaoclient_beijing import PassWordException
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 

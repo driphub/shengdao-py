@@ -10,6 +10,7 @@ from retrying import retry
 
 shoe_state = {'1':'未抽奖','2':'未中签','3':'已中签'}
 
+PassWordError_code = 502
 class PassWordException(Exception):
 	def __init__(self):
 		pass
@@ -38,6 +39,8 @@ class ShengdaoClient:
 		self.activityId = activityId
 		if auth == None:
 			self.auth = self.get_auth()
+			if self.auth == PassWordError_code:
+				raise PassWordException()
 			with open('auths.txt','a+') as f:
 				f.write(self.name+','+self.userid+','+self.password+','+str(self.auth)+'\n')
 		else:
@@ -45,7 +48,7 @@ class ShengdaoClient:
 		self.shoes = self.search_register()
 		self.activities = self.search_activity()
 		
-		# shoes 和 activities 永远维持最新状态,避免每次都要调用search方法
+		# shoes 和 activities 永远维持最新状态,在每次登记后更新当前账号登记记录,避免每次都要调用search方法
 
 	# def pre_process(self):
 	# 	self.activities = self.search_activity()
