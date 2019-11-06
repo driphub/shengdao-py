@@ -36,7 +36,6 @@ class ShengdaoClient:
 			self.name = userid
 		else:
 			self.name = name
-		self.activityId = activityId
 		if auth == None:
 			self.auth = self.get_auth()
 			if self.auth == PassWordError_code:
@@ -45,9 +44,17 @@ class ShengdaoClient:
 				f.write(self.name+','+self.userid+','+self.password+','+str(self.auth)+'\n')
 		else:
 			self.auth = eval(auth)
-		self.shoes = self.search_register()
-		self.activities = self.search_activity()
+		self.activityId = activityId
 		
+		if self.activityId != '0':
+			# 选择登记商品时
+			self.shoes = []
+			self.activities = self.search_activity()
+		else:
+			# 选择查中签时
+			self.shoes = self.search_register()
+			self.activities = []
+		# 选择鞋品登记时,不查登记记录
 		# shoes 和 activities 永远维持最新状态,在每次登记后更新当前账号登记记录,避免每次都要调用search方法
 
 	# def pre_process(self):
