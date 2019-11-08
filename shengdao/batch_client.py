@@ -68,7 +68,13 @@ class Batch_Client:
 		if 'auth' not in self.shengdaolist[0].keys():
 			for items in tqdm(self.shengdaolist):
 				try:
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId)
+					if self.activityId != '0':
+						search_method = 0
+						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
+					else:
+						search_method = 1
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId,search_method)
+					# activityId 默认为0,避免重复查询,在server只查询第一位即可
 					self.clients.append(client)
 				except KeyboardInterrupt:
 					exit()
@@ -78,7 +84,12 @@ class Batch_Client:
 		else:
 			for items in tqdm(self.shengdaolist):
 				try:
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId,items['auth'])
+					if self.activityId != '0':
+						search_method = 0
+						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
+					else:
+						search_method = 1
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],self.activityId,search_method)
 					self.clients.append(client)
 				except KeyboardInterrupt:
 					exit()
@@ -152,7 +163,7 @@ class Batch_Client:
 		while True:
 			cmd = input("输入1开始登记商品,输入2查看登记结果,输入3查中签名单,输入4生成中签文件,输入0退出:")
 			if cmd == '1':
-				activities = self.clients[0].activities
+				activities = self.clients[0].search_activity()
 				self.clients[0].search_activity_print()
 				if len(activities) == 0:
 					continue

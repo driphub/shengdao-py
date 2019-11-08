@@ -6,7 +6,7 @@ activityId = input("输入微信公众号中的商品编号进行登记:")
 shengdaolist = []
 try:
 	for line in open(file_name):
-		if '已知信息' in line:
+		if '.' in line:
 			break
 		items = line.strip().split(' ')
 		shengdaolist.append({'name':items[0],'userid':items[1],'password':items[2]})

@@ -29,7 +29,7 @@ def retry_if_not_passworderror(exception):
 class ShengdaoClient:
 
 	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
-	def __init__(self,userid,password,name=None,activityId=None,auth=None):
+	def __init__(self,userid,password,name=None,auth=None,activityId='0',method=2):
 		self.userid = userid
 		self.password = password
 		if name == None:
@@ -45,15 +45,21 @@ class ShengdaoClient:
 		else:
 			self.auth = eval(auth)
 		self.activityId = activityId
-		
-		if self.activityId != '0':
-			# 选择登记商品时
+		if method == 0:
 			self.shoes = []
-			self.activities = self.search_activity()
-		else:
+			self.activities = []
+		elif method == 1:
 			# 选择查中签时
 			self.shoes = self.search_register()
 			self.activities = []
+		elif method == 2:
+			# 查中签和查登记
+			self.shoes = self.search_register()
+			self.activities = self.search_activity()
+		else:
+			# 只查可登记商品
+			self.shoes = []
+			self.activities = self.search_activity()
 		# 选择鞋品登记时,不查登记记录
 		# shoes 和 activities 永远维持最新状态,在每次登记后更新当前账号登记记录,避免每次都要调用search方法
 
