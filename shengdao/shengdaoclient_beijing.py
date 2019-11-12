@@ -160,7 +160,7 @@ class ShengdaoClient:
 
 
 	def search_activity(self): 
-		activities = []				  
+		activities = []
 		result = requests.get('http://wx.yysports.com/limitelotterybeijing/activity?activityId='+self.activityId,headers=self.auth)
 		for shoe in json.loads(result.text):
 			activities.append({'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops'],"shoesSizes":shoe['shoesSizes']})

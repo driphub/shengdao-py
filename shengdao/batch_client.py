@@ -73,7 +73,7 @@ class Batch_Client:
 						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
 					else:
 						search_method = 1
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],self.activityId,search_method)
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],activityId=self.activityId,method=search_method)
 					# activityId 默认为0,避免重复查询,在server只查询第一位即可
 					self.clients.append(client)
 				except KeyboardInterrupt:
@@ -89,7 +89,7 @@ class Batch_Client:
 						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
 					else:
 						search_method = 1
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],self.activityId,search_method)
+					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method)
 					self.clients.append(client)
 				except KeyboardInterrupt:
 					exit()
