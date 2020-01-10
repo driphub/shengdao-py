@@ -15,8 +15,6 @@ In the more than a year of learning with Shengdao, the runners behind the road h
 2019年12月,登记查询请求都开始禁用ip。在程序中加入了代理模式。
 
 
-2019 Nián 12 yuè, dēngjì cháxún qǐngqiú dōu kāishǐ jìnyòng ip. Zài chéngxù zhōng jiārùle dàilǐ móshì.
-36/5000
 In December 2019, registration query requests began to disable IP. Added proxy mode to the program.
 
 
