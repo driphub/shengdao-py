@@ -12,6 +12,13 @@ Try to analyse the Auth API which is not provided by official website, and provi
 
 In the more than a year of learning with Shengdao, the runners behind the road have used various methods to prohibit crawling programs. Finally, on October 20, 2019, the ip strategy was launched. But i found that the ip strategy only limit login requests and not limit regist and search requests. Since the auth that get from login request will not change in every login request,i can save auth and implement login. I implemented it in the latest version, faster than older.
 
+2019年12月,登记查询请求都开始禁用ip。在程序中加入了代理模式。
+
+
+2019 Nián 12 yuè, dēngjì cháxún qǐngqiú dōu kāishǐ jìnyòng ip. Zài chéngxù zhōng jiārùle dàilǐ móshì.
+36/5000
+In December 2019, registration query requests began to disable IP. Added proxy mode to the program.
+
 
 ## To shoes lover
 

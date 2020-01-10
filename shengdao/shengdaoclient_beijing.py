@@ -28,10 +28,11 @@ def retry_if_not_passworderror(exception):
 
 class ShengdaoClient:
 
-	@retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
-	def __init__(self,userid,password,name=None,auth=None,activityId='0',method=2):
+	# @retry(stop_func=retry_log,retry_on_exception=retry_if_not_passworderror)
+	def __init__(self,userid,password,name=None,auth=None,activityId='0',method=2,proxy={}):
 		self.userid = userid
 		self.password = password
+		self.proxy = proxy
 		if name == None:
 			self.name = userid
 		else:
@@ -107,7 +108,7 @@ class ShengdaoClient:
 			('state', '9934af259a69498f86644851cea1e122'),
 		)
 
-		response = requests.get('https://sso-prod.yysports.com/oauth/authorize', headers=headers, params=params, cookies=cookies)
+		response = requests.get('https://sso-prod.yysports.com/oauth/authorize', headers=headers, params=params, cookies=cookies,proxies=self.proxy)
 		try:
 			self.code = response.url.split('code=')[1].split('&')[0]
 		except:
@@ -150,7 +151,7 @@ class ShengdaoClient:
 		}
 
 		data = '{"uid":"%s","userName":"%s","personalId":"%s","mobile":"%s"}'%(self.uid,name,id_number,mobile)
-		response = requests.post('http://wx.yysports.com/limitelottery/regist', headers=headers, cookies=cookies,data=data.encode('utf-8'), verify=False)
+		response = requests.post('http://wx.yysports.com/limitelottery/regist', headers=headers, cookies=cookies,data=data.encode('utf-8'), verify=False,proxies=self.proxy)
 		if response.text.strip() == '':
 			print('身份验证成功!')
 			return 1
@@ -161,7 +162,7 @@ class ShengdaoClient:
 
 	def search_activity(self): 
 		activities = []
-		result = requests.get('http://wx.yysports.com/limitelotterybeijing/activity?activityId='+self.activityId,headers=self.auth)
+		result = requests.get('http://wx.yysports.com/limitelotterybeijing/activity?activityId='+self.activityId,headers=self.auth,proxies=self.proxy)
 		for shoe in json.loads(result.text):
 			activities.append({'activityItemId':shoe['activityItemId'],'itemName':shoe['itemName'],"activityShops":shoe['activityShops'],"shoesSizes":shoe['shoesSizes']})
 		return activities
@@ -206,7 +207,7 @@ class ShengdaoClient:
 		for shoe in self.activities:
 			data = [{"activityItemId":shoe['activityItemId'],"activity ShopId":"1640"}]
 			data = json.dumps(data)
-			response = requests.post('http://wx.yysports.com/limitelotterybeijing/activity?activityId='+self.activityId, headers=headers,data=data)
+			response = requests.post('http://wx.yysports.com/limitelotterybeijing/activity?activityId='+self.activityId, headers=headers,data=data,proxies=self.proxy)
 			if response.status_code == 200:
 				print(self.name + ' ' + shoe['itemName'] + ' ' + '登记成功')
 				self.activities = self.search_activity()
@@ -241,7 +242,7 @@ class ShengdaoClient:
 				data = [{"activityItemId":activityItemId,"activityShopId":activityShopId,"shoesSize":shoesSize}]
 
 			data = json.dumps(data)
-			response = requests.post('http://wx.yysports.com/limitelotterybeijing/activity', headers=headers,data=data)
+			response = requests.post('http://wx.yysports.com/limitelotterybeijing/activity', headers=headers,data=data,proxies=self.proxy)
 			if response.status_code == 200:
 				print(self.name + ' ' + shoeName + ' ' + '登记成功')
 				self.activities = self.search_activity()
@@ -258,7 +259,7 @@ class ShengdaoClient:
 
 	def search_register(self):
 		shoes = []
-		result = requests.get('http://wx.yysports.com/limitelotterybeijing/activity/registitems',headers=self.auth)
+		result = requests.get('http://wx.yysports.com/limitelotterybeijing/activity/registitems',headers=self.auth,proxies=self.proxy)
 		for shoe in json.loads(result.text):
 			if len(shoe['activityShops']) != 0: # 存在没有shop的情况
 				shoes.append({'itemName':shoe['itemName'],'shopName':shoe['activityShops'][0]['shopName'],'state':shoe_state[shoe['state']]})

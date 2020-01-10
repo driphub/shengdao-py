@@ -25,11 +25,12 @@ class myThread(threading.Thread):
 			self.func(self.args[0],self.args[1])
 
 class Batch_Client:
-	def __init__(self,file,activityId,city,method):
+	def __init__(self,file,activityId,city,method,use_proxy=True):
 		self.filepath = file
 		self.file = open(file,encoding="utf-8")
 		self.path = os.getcwd()
 		self.method = int(method)
+		self.use_proxy = use_proxy
 		if city == '北京':
 			self.ShengdaoClient = ShengdaoClient_Beijing
 		else:
@@ -38,6 +39,7 @@ class Batch_Client:
 		self.clients = []
 		self.activities = []
 		self.activityId = activityId
+
 # 		thread = myThread(send_email.run,args=['shengdao',self.filepath])
 # 		thread.start()
 		self.pre_process()
@@ -45,8 +47,23 @@ class Batch_Client:
 	def pre_process(self):
 		self.file_process()
 		print('正在获取auths...')
+		num_plist = int(len(self.shengdaolist)/5+0.5)
+		if self.use_proxy:
+			from FreeProxy import ProxyTool
+			print('='*50)
+			print(str(len(self.shengdaolist))+'个账号,''需要'+str(num_plist)+'个代理')
+			plist = ProxyTool.ProxyTool().getProxy(num_plist,1000)
+			self.proxies = [{
+					'http':'http://'+p[0]+':'+p[1],
+					'https':'https://'+p[0]+':'+p[1]
+					}for p in plist]
+			# self.proxies =[{'http': 'http://122.228.19.92:3389', 'https': 'https://122.228.19.92:3389'}, {'http': 'http://121.225.199.78:3128', 'https': 'https://121.225.199.78:3128'}, {'http': 'http://122.228.19.9:3389', 'https': 'https://122.228.19.9:3389'}]
+			self.now_proxy = self.proxies[0]
+		else:
+			self.proxies = [{}*num_plist]
 		self.get_auths()
 		self.activities = self.clients[0].activities
+
 
 	def file_process(self):
 		try:
@@ -73,8 +90,11 @@ class Batch_Client:
 						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
 					else:
 						search_method = 1
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],activityId=self.activityId,method=search_method)
-					# activityId 默认为0,避免重复查询,在server只查询第一位即可
+					try:
+						client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method,proxy=self.now_proxy)
+					except: # proxy被禁用后切换下一个
+						self.now_proxy = self.proxies[self.proxies.index(self.now_proxy)+1]
+						client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method,proxy=self.now_proxy)# activityId 默认为0,避免重复查询,在server只查询第一位即可
 					self.clients.append(client)
 				except KeyboardInterrupt:
 					exit()
@@ -89,7 +109,11 @@ class Batch_Client:
 						# 选择登记商品时,只用于除第一个账号以外的号,不做中签和可登记商品查询
 					else:
 						search_method = 1
-					client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method)
+					try:
+						client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method,proxy=self.now_proxy)
+					except: # proxy被禁用后切换下一个
+						self.now_proxy = self.proxies[self.proxies.index(self.now_proxy)+1]
+						client = self.ShengdaoClient(items['userid'],items['password'],items['name'],items['auth'],activityId=self.activityId,method=search_method,proxy=self.now_proxy)
 					self.clients.append(client)
 				except KeyboardInterrupt:
 					exit()
